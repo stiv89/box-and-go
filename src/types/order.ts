@@ -19,11 +19,22 @@ export interface ProductionSlotSpec {
   chocolateName: string;
 }
 
+export interface ProductionChocolateBreakdown {
+  chocolateId: ChocolateId;
+  chocolateName: string;
+  /** Quantity of this chocolate in a single box. */
+  perBox: number;
+  /** Quantity of this chocolate across the full order (perBox * quantity). */
+  total: number;
+}
+
 export interface ProductionSpecification {
   orderId: string;
   boxSize: BoxSize;
   slots: ProductionSlotSpec[];
   customization: Customization;
   quantity: number;
+  chocolateBreakdown: ProductionChocolateBreakdown[];
+  totalChocolates: number;
   generatedAt: string;
 }

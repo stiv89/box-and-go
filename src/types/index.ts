@@ -16,6 +16,7 @@ export { createDefaultCustomization } from "./customization";
 export type {
   CorporateOrder,
   OrderStatus,
+  ProductionChocolateBreakdown,
   ProductionSlotSpec,
   ProductionSpecification,
 } from "./order";
