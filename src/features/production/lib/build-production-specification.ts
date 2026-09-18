@@ -1,3 +1,4 @@
+import { isBrandedChocolateId } from "@/lib/constants";
 import type {
   BoxConfiguration,
   Chocolate,
@@ -30,11 +31,15 @@ export function buildProductionSpecification(
   for (const slot of box.slots) {
     if (!slot.chocolateId) continue;
 
-    const chocolateName = chocolateById.get(slot.chocolateId)?.name ?? "Unknown chocolate";
+    const branded = isBrandedChocolateId(slot.chocolateId);
+    const chocolateName = branded
+      ? "Branded Corporate Piece"
+      : (chocolateById.get(slot.chocolateId)?.name ?? "Unknown chocolate");
     slots.push({
       slotIndex: slot.index,
       chocolateId: slot.chocolateId,
       chocolateName,
+      isBranded: branded || undefined,
     });
     perBoxCounts.set(slot.chocolateId, (perBoxCounts.get(slot.chocolateId) ?? 0) + 1);
   }

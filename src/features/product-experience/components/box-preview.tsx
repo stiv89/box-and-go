@@ -1,7 +1,7 @@
 "use client";
 
 import { BoxSlotGrid } from "@/features/product-experience/components/box-slot-grid";
-import { BOX_SIZES } from "@/lib/constants";
+import { BOX_SIZES, getRecommendedBrandedSlotIndex } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useBoxStore } from "@/stores/use-box-store";
 
@@ -88,6 +88,10 @@ export function BoxPreview({ interactive = true, className }: BoxPreviewProps) {
           onSlotClear={clearSlot}
           onSlotFocus={setFocusedSlotIndex}
           readOnly={!interactive}
+          recommendedSlotIndex={
+            logo.url ? getRecommendedBrandedSlotIndex(rows, cols) : null
+          }
+          logoUrl={logo.url}
         />
 
         {cardMessage && (

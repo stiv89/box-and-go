@@ -21,11 +21,17 @@ export interface PackagingPreferences {
   giftNote: string;
 }
 
+/** Tracks where the branded logo chocolate is placed in the grid. */
+export interface BrandedPlacement {
+  slotIndex: number | null;
+}
+
 export interface Customization {
   logo: LogoConfiguration;
   ribbon: RibbonConfiguration;
   card: CardConfiguration;
   packaging: PackagingPreferences;
+  brandedPlacement: BrandedPlacement;
 }
 
 export function createDefaultCustomization(): Customization {
@@ -34,5 +40,6 @@ export function createDefaultCustomization(): Customization {
     ribbon: { color: "#8b4513", style: "classic" },
     card: { message: "", fontStyle: "serif" },
     packaging: { wrapStyle: "standard", giftNote: "" },
+    brandedPlacement: { slotIndex: null },
   };
 }

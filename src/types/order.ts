@@ -17,6 +17,8 @@ export interface ProductionSlotSpec {
   slotIndex: number;
   chocolateId: ChocolateId;
   chocolateName: string;
+  /** True when this slot holds the corporate logo chocolate. */
+  isBranded?: boolean;
 }
 
 export interface ProductionChocolateBreakdown {
