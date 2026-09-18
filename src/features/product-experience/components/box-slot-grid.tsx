@@ -23,6 +23,10 @@ export interface BoxSlotGridProps {
   onSlotFocus: (slotIndex: number) => void;
   readOnly?: boolean;
   className?: string;
+  /** Front-center slot suggestion for branded piece (KAN-7). */
+  recommendedSlotIndex?: number | null;
+  /** Logo URL for rendering on branded chocolate pieces. */
+  logoUrl?: string | null;
 }
 
 function findChocolate(catalog: Chocolate[], id: ChocolateId | null) {
@@ -42,6 +46,8 @@ export function BoxSlotGrid({
   onSlotFocus,
   readOnly = false,
   className,
+  recommendedSlotIndex = null,
+  logoUrl = null,
 }: BoxSlotGridProps) {
   return (
     <div
@@ -54,15 +60,23 @@ export function BoxSlotGrid({
         const chocolate = findChocolate(catalog, slot.chocolateId);
         const isFocused = focusedSlotIndex === slot.index;
         const canPlace = Boolean(selectedChocolateId) && !readOnly;
+        const isRecommended = recommendedSlotIndex === slot.index;
+        const isEmpty = !chocolate;
 
         return (
           <div key={slot.index} className="relative">
+            {isRecommended && isEmpty && (
+              <span className="pointer-events-none absolute -top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-[var(--gold)]/90 px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-wide text-[var(--chocolate-dark)]">
+                Suggested
+              </span>
+            )}
+
             <button
               type="button"
               aria-label={
                 chocolate
                   ? `Slot ${slot.index + 1}, ${chocolate.name}. Press to focus, use clear to remove.`
-                  : `Empty slot ${slot.index + 1}. ${canPlace ? "Click to place selected chocolate." : "Select a chocolate first."}`
+                  : `Empty slot ${slot.index + 1}. ${canPlace ? "Click to place selected chocolate." : "Select a chocolate first."}${isRecommended ? " Recommended for branded piece." : ""}`
               }
               aria-current={isFocused ? "true" : undefined}
               disabled={readOnly}
@@ -75,12 +89,19 @@ export function BoxSlotGrid({
                   ? "border-[var(--chocolate-light)] bg-[var(--cream-dark)]"
                   : "border-dashed border-[var(--chocolate-light)]/50 bg-[var(--cream)]",
                 isFocused && "ring-2 ring-[var(--gold)] ring-offset-1",
+                isRecommended &&
+                  isEmpty &&
+                  "border-[var(--gold)]/70 bg-[var(--gold)]/5",
                 canPlace && !chocolate && "cursor-pointer hover:border-[var(--gold)] hover:bg-[var(--cream-dark)]",
                 canPlace && chocolate && "cursor-pointer hover:border-[var(--gold)]",
               )}
             >
               {chocolate ? (
-                <ChocolatePiece chocolate={chocolate} size="md" />
+                <ChocolatePiece
+                  chocolate={chocolate}
+                  size="md"
+                  logoUrl={logoUrl}
+                />
               ) : (
                 <span className="text-xs text-muted-foreground/60">{slot.index + 1}</span>
               )}

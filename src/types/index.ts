@@ -6,6 +6,7 @@ export type {
   ChocolateBox,
 } from "./box";
 export type {
+  BrandedPlacement,
   CardConfiguration,
   Customization,
   LogoConfiguration,

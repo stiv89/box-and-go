@@ -5,7 +5,7 @@ import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PACKAGING_OPTIONS, RIBBON_COLORS } from "@/features/product-experience/constants";
-import { BOX_SIZES } from "@/lib/constants";
+import { BOX_SIZES, getRecommendedBrandedSlotIndex } from "@/lib/constants";
 import { useBoxStore } from "@/stores/use-box-store";
 
 export function OrderSummary() {
@@ -75,6 +75,29 @@ export function OrderSummary() {
           <dt className="text-muted-foreground">Logo</dt>
           <dd className="font-medium">{customization.logo.url ? "Uploaded" : "None"}</dd>
         </div>
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted-foreground">Branded piece</dt>
+          <dd className="font-medium">
+            {customization.brandedPlacement.slotIndex !== null
+              ? `Slot ${customization.brandedPlacement.slotIndex + 1}`
+              : "Not placed"}
+          </dd>
+        </div>
+        {customization.logo.url &&
+          customization.brandedPlacement.slotIndex !== null && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Placement</dt>
+              <dd className="text-right text-xs font-medium">
+                {customization.brandedPlacement.slotIndex ===
+                getRecommendedBrandedSlotIndex(
+                  BOX_SIZES[boxSize].rows,
+                  BOX_SIZES[boxSize].cols,
+                )
+                  ? "Recommended (front-center)"
+                  : "Custom (see preview)"}
+              </dd>
+            </div>
+          )}
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Card message</dt>
           <dd className="max-w-[140px] truncate font-medium">

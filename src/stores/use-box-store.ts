@@ -2,7 +2,13 @@ import { create } from "zustand";
 
 import { DEMO_CHOCOLATES } from "@/data/demo-chocolates";
 import { createEmptyBox } from "@/lib/box-factory";
-import { DEFAULT_BOX_SIZE } from "@/lib/constants";
+import {
+  BRANDED_CHOCOLATE_ID,
+  createBrandedChocolate,
+  DEFAULT_BOX_SIZE,
+  getRecommendedBrandedSlotIndex,
+  isBrandedChocolateId,
+} from "@/lib/constants";
 import type {
   BoxSize,
   CardConfiguration,
@@ -15,7 +21,7 @@ import type {
 } from "@/types";
 import { createDefaultCustomization } from "@/types";
 
-interface BoxStoreState {
+export interface BoxStoreState {
   boxSize: BoxSize;
   slots: ReturnType<typeof createEmptyBox>["slots"];
   quantity: number;
@@ -34,30 +40,78 @@ interface BoxStoreState {
   updateCard: (partial: Partial<CardConfiguration>) => void;
   updatePackaging: (partial: Partial<PackagingPreferences>) => void;
   setLogoUrl: (url: string | null) => void;
+  placeBrandedAtRecommended: () => void;
+}
+
+function catalogWithBranded(hasLogo: boolean): Chocolate[] {
+  const base = DEMO_CHOCOLATES.filter((c) => !c.isBranded);
+  return hasLogo ? [createBrandedChocolate(), ...base] : base;
+}
+
+function stripBrandedFromSlots(
+  slots: BoxStoreState["slots"],
+): BoxStoreState["slots"] {
+  return slots.map((slot) =>
+    isBrandedChocolateId(slot.chocolateId)
+      ? { ...slot, chocolateId: null }
+      : slot,
+  );
 }
 
 export const useBoxStore = create<BoxStoreState>((set, get) => ({
   boxSize: DEFAULT_BOX_SIZE,
   slots: createEmptyBox(DEFAULT_BOX_SIZE).slots,
   quantity: 1,
-  catalog: DEMO_CHOCOLATES,
+  catalog: catalogWithBranded(false),
   selectedChocolateId: null,
   focusedSlotIndex: null,
   customization: createDefaultCustomization(),
 
   setBoxSize: (size) =>
-    set({
+    set((state) => ({
       boxSize: size,
       slots: createEmptyBox(size).slots,
       focusedSlotIndex: null,
-    }),
+      customization: {
+        ...state.customization,
+        brandedPlacement: { slotIndex: null },
+      },
+    })),
 
   setSlotChocolate: (slotIndex, chocolateId) =>
-    set((state) => ({
-      slots: state.slots.map((slot) =>
+    set((state) => {
+      const placingBranded = isBrandedChocolateId(chocolateId);
+
+      let slots = state.slots.map((slot) =>
         slot.index === slotIndex ? { ...slot, chocolateId } : slot,
-      ),
-    })),
+      );
+
+      if (placingBranded && chocolateId) {
+        slots = slots.map((slot) =>
+          slot.index !== slotIndex && isBrandedChocolateId(slot.chocolateId)
+            ? { ...slot, chocolateId: null }
+            : slot,
+        );
+      }
+
+      let brandedSlotIndex = state.customization.brandedPlacement.slotIndex;
+
+      if (placingBranded && chocolateId) {
+        brandedSlotIndex = slotIndex;
+      } else if (chocolateId === null && brandedSlotIndex === slotIndex) {
+        brandedSlotIndex = null;
+      } else if (chocolateId !== null && !placingBranded && brandedSlotIndex === slotIndex) {
+        brandedSlotIndex = null;
+      }
+
+      return {
+        slots,
+        customization: {
+          ...state.customization,
+          brandedPlacement: { slotIndex: brandedSlotIndex },
+        },
+      };
+    }),
 
   setQuantity: (quantity) => set({ quantity: Math.max(1, quantity) }),
 
@@ -102,7 +156,40 @@ export const useBoxStore = create<BoxStoreState>((set, get) => ({
       },
     })),
 
-  setLogoUrl: (url) => get().updateLogo({ url }),
+  setLogoUrl: (url) => {
+    const state = get();
+    if (!url) {
+      set({
+        catalog: catalogWithBranded(false),
+        slots: stripBrandedFromSlots(state.slots),
+        selectedChocolateId:
+          state.selectedChocolateId === BRANDED_CHOCOLATE_ID
+            ? null
+            : state.selectedChocolateId,
+        customization: {
+          ...state.customization,
+          logo: { ...state.customization.logo, url: null },
+          brandedPlacement: { slotIndex: null },
+        },
+      });
+      return;
+    }
+
+    get().updateLogo({ url });
+    set({ catalog: catalogWithBranded(true) });
+  },
+
+  placeBrandedAtRecommended: () => {
+    const state = get();
+    if (!state.customization.logo.url) return;
+
+    const box = createEmptyBox(state.boxSize);
+    const recommended = getRecommendedBrandedSlotIndex(box.rows, box.cols);
+
+    set({ selectedChocolateId: BRANDED_CHOCOLATE_ID });
+    get().setSlotChocolate(recommended, BRANDED_CHOCOLATE_ID);
+    set({ focusedSlotIndex: recommended });
+  },
 }));
 
 /** Convenience selector for the full configuration shape. */
@@ -113,4 +200,10 @@ export function getBoxConfigurationFromStore(state: BoxStoreState) {
     customization: state.customization,
     quantity: state.quantity,
   };
+}
+
+/** Recommended front-center slot for the current box size. */
+export function getRecommendedBrandedSlotForState(state: BoxStoreState): number {
+  const box = createEmptyBox(state.boxSize);
+  return getRecommendedBrandedSlotIndex(box.rows, box.cols);
 }

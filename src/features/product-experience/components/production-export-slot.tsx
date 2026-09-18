@@ -3,6 +3,7 @@
 import { FileOutput } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { buildProductionSlotsFromStore } from "@/lib/production-slots";
 import { getBoxConfigurationFromStore, useBoxStore } from "@/stores/use-box-store";
 
 /**
@@ -19,7 +20,11 @@ export function ProductionExportSlot() {
 
   function handlePreviewData() {
     const config = getBoxConfigurationFromStore(state);
-    console.info("[Box & Go] Configuration ready for export module:", config);
+    const slots = buildProductionSlotsFromStore(state);
+    console.info("[Box & Go] Configuration ready for export module:", {
+      ...config,
+      productionSlots: slots,
+    });
   }
 
   return (
