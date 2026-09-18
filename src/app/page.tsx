@@ -7,19 +7,19 @@ import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   return (
-    <div className="overflow-x-hidden">
-      <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
-        <div>
+    <div className="overflow-x-hidden bg-white">
+      <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:py-20">
+        <div className="order-2 lg:order-1">
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--gold-dark)]">
             Cocoa Dolce · Corporate Gifting
           </p>
-          <h1 className="mt-4 font-[family-name:var(--font-display)] text-4xl font-medium leading-[1.1] tracking-tight text-[var(--chocolate-dark)] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-4 font-[family-name:var(--font-display)] text-4xl font-medium leading-[1.08] tracking-tight text-[var(--chocolate-dark)] sm:text-5xl lg:text-[3.25rem]">
             Box <span className="text-[var(--gold-dark)]">&amp;</span> Go
           </h1>
           <p className="mt-3 font-[family-name:var(--font-display)] text-xl italic text-[var(--chocolate)]">
             Design. Approve. Produce.
           </p>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground">
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-neutral-600">
             A visual configurator for corporate chocolate boxes. Choose your
             assortment, arrange each piece, add your logo and ribbon, and prepare
             production-ready orders — without spreadsheets or back-and-forth emails.
@@ -29,7 +29,7 @@ export default function HomePage() {
               href="/builder"
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "gap-2 bg-[var(--chocolate)] text-[var(--cream)] hover:bg-[var(--chocolate-dark)]",
+                "gap-2 bg-[var(--chocolate)] text-white hover:bg-[var(--chocolate-dark)]",
               )}
             >
               Design Your Box
@@ -38,10 +38,12 @@ export default function HomePage() {
           </div>
         </div>
 
-        <HeroBoxVisual />
+        <div className="order-1 lg:order-2">
+          <HeroBoxVisual />
+        </div>
       </section>
 
-      <section className="border-t border-[var(--chocolate-light)]/20 bg-[var(--cream-dark)]/40">
+      <section className="border-t border-neutral-100 bg-neutral-50/80">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-3">
           {[
             {
@@ -67,7 +69,7 @@ export default function HomePage() {
               <h2 className="font-[family-name:var(--font-display)] text-xl font-medium text-[var(--chocolate-dark)]">
                 {item.title}
               </h2>
-              <p className="text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+              <p className="text-sm leading-relaxed text-neutral-600">{item.body}</p>
             </div>
           ))}
         </div>
