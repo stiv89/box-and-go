@@ -48,6 +48,13 @@ export function OrderSummary() {
         </p>
       </div>
 
+      {filledCount === 0 && (
+        <p className="rounded-lg border border-dashed border-[var(--chocolate-light)]/40 bg-[var(--cream)]/50 p-3 text-xs text-muted-foreground">
+          No chocolates placed yet. Select or drag pieces into the box to begin
+          your order.
+        </p>
+      )}
+
       <dl className="space-y-3 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Box size</dt>

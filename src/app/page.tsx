@@ -47,7 +47,7 @@ export default function HomePage() {
             {
               step: "01",
               title: "Select & arrange",
-              body: "Pick from the sample catalog and fill each slot in your 9- or 16-piece box.",
+              body: "Pick from the sample catalog and click or drag each piece into your 9- or 16-piece box.",
             },
             {
               step: "02",

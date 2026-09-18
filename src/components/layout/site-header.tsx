@@ -36,10 +36,10 @@ export function SiteHeader({ className }: SiteHeaderProps) {
           </div>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <nav className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/equipo"
-            className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline"
+            className="rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground sm:text-sm"
           >
             Equipo
           </Link>
@@ -50,9 +50,10 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               "bg-[var(--chocolate)] text-[var(--cream)] hover:bg-[var(--chocolate-dark)]",
             )}
           >
-            Design Your Box
+            <span className="hidden sm:inline">Design Your Box</span>
+            <span className="sm:hidden">Builder</span>
           </Link>
-        </div>
+        </nav>
       </div>
     </header>
   );
