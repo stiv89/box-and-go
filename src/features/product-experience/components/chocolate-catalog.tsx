@@ -1,5 +1,6 @@
 "use client";
 
+import { DraggableChocolate } from "@/features/box-builder";
 import { BrandedChocolatePanel } from "@/features/product-experience/components/branded-chocolate-panel";
 import { ChocolatePiece } from "@/features/product-experience/components/chocolate-piece";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,7 @@ function CatalogItem({
   const setSelectedChocolate = useBoxStore((s) => s.setSelectedChocolate);
   const isSelected = selectedChocolateId === chocolate.id;
 
-  return (
+  const button = (
     <button
       type="button"
       onClick={() => setSelectedChocolate(isSelected ? null : chocolate.id)}
@@ -45,6 +46,12 @@ function CatalogItem({
       )}
     </button>
   );
+
+  return (
+    <DraggableChocolate chocolateId={chocolate.id}>
+      {button}
+    </DraggableChocolate>
+  );
 }
 
 export function ChocolateCatalog() {
@@ -55,14 +62,22 @@ export function ChocolateCatalog() {
   const regularChocolates = catalog.filter((c) => !c.isBranded);
   const brandedChocolates = catalog.filter((c) => c.isBranded);
 
+  if (catalog.length === 0) {
+    return (
+      <p className="rounded-xl border border-dashed border-[var(--chocolate-light)]/40 p-4 text-center text-sm text-muted-foreground">
+        No chocolates available in the catalog.
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div>
         <h2 className="font-[family-name:var(--font-display)] text-lg font-medium">
           Chocolates
         </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Select a piece, then click a slot to place it. Branded pieces require an
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Click to select, or drag a piece into the box. Branded pieces require an
           uploaded logo.
         </p>
       </div>
@@ -71,7 +86,7 @@ export function ChocolateCatalog() {
 
       {selectedChocolateId && (
         <p className="rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-2 text-xs text-[var(--chocolate-dark)]">
-          Click any slot in the box preview to place your selection.
+          Click or drag into a slot to place your selection.
         </p>
       )}
 

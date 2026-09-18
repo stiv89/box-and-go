@@ -1,6 +1,6 @@
 "use client";
 
-import { BoxSlotGrid } from "@/features/product-experience/components/box-slot-grid";
+import { DndBoxSlotGrid } from "@/features/box-builder";
 import { BOX_SIZES, getRecommendedBrandedSlotIndex } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useBoxStore } from "@/stores/use-box-store";
@@ -36,7 +36,11 @@ export function BoxPreview({ interactive = true, className }: BoxPreviewProps) {
 
   return (
     <div className={cn("mx-auto w-full max-w-md", className)}>
-      <div className="relative rounded-2xl border border-[var(--chocolate-light)]/30 bg-[var(--cream-dark)] p-6 shadow-[0_8px_30px_-12px_rgba(60,35,20,0.25)]">
+      <div className="relative rounded-2xl border border-[var(--chocolate-light)]/30 bg-gradient-to-b from-[var(--cream-dark)] to-[var(--cream)] p-5 shadow-[0_8px_30px_-12px_rgba(60,35,20,0.25)] sm:p-6">
+        <div
+          className="pointer-events-none absolute inset-x-4 bottom-0 h-3 rounded-t-lg bg-[var(--chocolate)]/10"
+          aria-hidden
+        />
         {/* Ribbon */}
         <div
           className="absolute left-1/2 top-0 h-8 w-24 -translate-x-1/2 -translate-y-1/2 rounded-sm shadow-md"
@@ -77,7 +81,7 @@ export function BoxPreview({ interactive = true, className }: BoxPreviewProps) {
           </p>
         </div>
 
-        <BoxSlotGrid
+        <DndBoxSlotGrid
           rows={rows}
           cols={cols}
           slots={slots}
