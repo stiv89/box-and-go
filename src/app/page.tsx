@@ -1,103 +1,77 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-export default function Home() {
+import { buttonVariants } from "@/components/ui/button";
+import { HeroBoxVisual } from "@/features/product-experience";
+import { cn } from "@/lib/utils";
+
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="overflow-x-hidden">
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--gold-dark)]">
+            Cocoa Dolce · Corporate Gifting
+          </p>
+          <h1 className="mt-4 font-[family-name:var(--font-display)] text-4xl font-medium leading-[1.1] tracking-tight text-[var(--chocolate-dark)] sm:text-5xl lg:text-6xl">
+            Box <span className="text-[var(--gold-dark)]">&amp;</span> Go
+          </h1>
+          <p className="mt-3 font-[family-name:var(--font-display)] text-xl italic text-[var(--chocolate)]">
+            Design. Approve. Produce.
+          </p>
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground">
+            A visual configurator for corporate chocolate boxes. Choose your
+            assortment, arrange each piece, add your logo and ribbon, and prepare
+            production-ready orders — without spreadsheets or back-and-forth emails.
+          </p>
+          <div className="mt-10">
+            <Link
+              href="/builder"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "gap-2 bg-[var(--chocolate)] text-[var(--cream)] hover:bg-[var(--chocolate-dark)]",
+              )}
+            >
+              Design Your Box
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <HeroBoxVisual />
+      </section>
+
+      <section className="border-t border-[var(--chocolate-light)]/20 bg-[var(--cream-dark)]/40">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-3">
+          {[
+            {
+              step: "01",
+              title: "Select & arrange",
+              body: "Pick from the sample catalog and click or drag each piece into your 9- or 16-piece box.",
+            },
+            {
+              step: "02",
+              title: "Brand your box",
+              body: "Upload a logo, choose a ribbon, and write a card message for your recipients.",
+            },
+            {
+              step: "03",
+              title: "Review & produce",
+              body: "Confirm quantities and hand off a precise specification to production.",
+            },
+          ].map((item) => (
+            <div key={item.step} className="space-y-2">
+              <p className="text-xs font-medium tracking-widest text-[var(--gold-dark)]">
+                {item.step}
+              </p>
+              <h2 className="font-[family-name:var(--font-display)] text-xl font-medium text-[var(--chocolate-dark)]">
+                {item.title}
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
