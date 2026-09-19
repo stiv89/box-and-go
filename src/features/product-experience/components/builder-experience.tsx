@@ -305,7 +305,8 @@ export function BuilderExperience() {
             interactive={finaleView !== "success"}
             statusSeal={
               finaleView === "success" && checkoutSuccess
-                ? checkoutSuccess.source === "payment"
+                ? checkoutSuccess.source === "payment" ||
+                    checkoutSuccess.source === "demo-cart"
                   ? "confirmed"
                   : "quoted"
                 : null

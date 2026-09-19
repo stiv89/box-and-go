@@ -103,6 +103,32 @@ test("checkout success guard rejects fake payments and incomplete local quotes",
     }),
     false,
   );
+  assert.equal(
+    isPresentableCheckoutSuccess({
+      source: "demo-cart",
+      verified: false,
+      simulated: true,
+      orderId: "DEMO-AB12",
+      name: "Ada",
+      email: "ada@example.com",
+      quantity: 1,
+      boxLabel: "The Classic",
+    }),
+    true,
+  );
+  assert.equal(
+    isPresentableCheckoutSuccess({
+      source: "demo-cart",
+      verified: false,
+      simulated: true,
+      orderId: "ORD-99",
+      name: "Ada",
+      email: "ada@example.com",
+      quantity: 1,
+      boxLabel: "The Classic",
+    }),
+    false,
+  );
 });
 
 test("resolveDrop swaps filled cavities and never duplicates", () => {

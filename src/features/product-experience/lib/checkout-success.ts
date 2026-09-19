@@ -29,6 +29,17 @@ export type CheckoutSuccess =
       quantity: number;
       boxLabel: string;
       delivery?: string;
+    }
+  | {
+      source: "demo-cart";
+      verified: false;
+      simulated: true;
+      orderId: string;
+      name: string;
+      email: string;
+      quantity: number;
+      boxLabel: string;
+      delivery?: string;
     };
 
 export function isPresentableCheckoutSuccess(
@@ -39,6 +50,15 @@ export function isPresentableCheckoutSuccess(
   }
   if (result.source === "quote") {
     return result.verified === true && result.reference.trim().length > 0;
+  }
+  if (result.source === "demo-cart") {
+    return (
+      result.simulated === true &&
+      result.verified === false &&
+      result.orderId.startsWith("DEMO-") &&
+      result.name.trim().length > 0 &&
+      result.email.trim().length > 0
+    );
   }
   return (
     result.source === "quote-local" &&

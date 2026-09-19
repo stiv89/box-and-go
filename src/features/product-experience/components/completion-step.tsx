@@ -154,7 +154,7 @@ export function CompletionStep({
         <ActionCard
           icon={<ShoppingBag className="size-4" />}
           title="Order your box"
-          description="Continue to checkout or request a quote."
+          description="Save the order summary to your cart."
           onClick={() => onViewChange("order")}
         />
         <ActionCard

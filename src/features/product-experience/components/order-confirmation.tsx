@@ -23,9 +23,12 @@ export function OrderConfirmation({
 }) {
   const isPayment = result.source === "payment";
   const isQuoteApi = result.source === "quote";
-  const title = isPayment ? "Order confirmed" : "Quote requested";
+  const isDemoCart = result.source === "demo-cart";
+  const title = isPayment || isDemoCart ? "Purchased" : "Quote requested";
   const subtitle = isPayment
     ? "Your box is being prepared."
+    : isDemoCart
+      ? "Saved to your cart on this device. Simulated checkout — nothing was charged."
     : result.source === "quote-local"
       ? result.persisted
         ? "Saved on this device. Quote requests aren’t sent until that service is connected."
@@ -34,12 +37,16 @@ export function OrderConfirmation({
 
   const referenceLabel = isPayment
     ? "Order number"
-    : isQuoteApi
+    : isDemoCart
+      ? "Cart order"
+      : isQuoteApi
       ? "Quote reference"
       : "Draft";
   const referenceValue = isPayment
     ? result.orderId
-    : isQuoteApi
+    : isDemoCart
+      ? result.orderId
+      : isQuoteApi
       ? result.reference
       : "Local only";
 
@@ -68,6 +75,8 @@ export function OrderConfirmation({
             <Row label="Total paid" value={result.totalPaid} />
             <Row label="Payment" value={result.paymentMethod} />
           </>
+        ) : isDemoCart ? (
+          <Row label="Total" value="Demo — not charged" />
         ) : (
           <Row label="Total" value="Quote — pricing not listed" />
         )}
