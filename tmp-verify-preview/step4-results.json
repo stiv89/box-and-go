@@ -1,0 +1,45 @@
+{
+  "step4Standard": {
+    "title": true,
+    "subtitle": true,
+    "orderCard": true,
+    "shareCard": true,
+    "productionCollapsed": true,
+    "noForest": true,
+    "noRibbonWord": true,
+    "noJsonExport": true,
+    "noPrintable": true,
+    "noGiftCard": true,
+    "noPay": true,
+    "noNumberOfBoxesHero": true,
+    "hasStandardWrap": true,
+    "hasStudio": true
+  },
+  "step4Gift": {
+    "hasGift": true,
+    "hasForestRibbon": true,
+    "noJson": true
+  },
+  "order": {
+    "requestQuote": true,
+    "noPayNow": true,
+    "quantity": true,
+    "contact": true,
+    "giftCard": true,
+    "incompleteBlock": true
+  },
+  "share": {
+    "clientProof": true,
+    "iframe": true,
+    "copyLink": true,
+    "realUrl": true,
+    "draft": true
+  },
+  "production": {
+    "json": true,
+    "printable": true,
+    "proof": true,
+    "demo": true,
+    "details": true
+  }
+}

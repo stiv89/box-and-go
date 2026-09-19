@@ -1,0 +1,50 @@
+{
+  "standard": {
+    "packaging": "standard",
+    "ribbon": "none",
+    "mode": "closed",
+    "visible": [
+      "_next/image?url=%2Fboxes%2Fstandard-wrap.png&w=828&q=75",
+      "_next/image?url=%2Fbuilder%2Fbox-open-9.png&w=828&q=75"
+    ]
+  },
+  "giftBrown": {
+    "packaging": "gift",
+    "ribbon": "classic-brown",
+    "mode": "closed",
+    "visible": [
+      "_next/image?url=%2Fbuilder%2Fbox-closed.png&w=828&q=75",
+      "_next/image?url=%2Fribbons%2Fclassic-brown.png&w=828&q=75",
+      "_next/image?url=%2Fbuilder%2Fbox-open-9.png&w=828&q=75"
+    ]
+  },
+  "giftSlate": {
+    "packaging": "gift",
+    "ribbon": "slate",
+    "mode": "closed",
+    "visible": [
+      "_next/image?url=%2Fbuilder%2Fbox-closed.png&w=828&q=75",
+      "_next/image?url=%2Fribbons%2Fslate.png&w=828&q=75",
+      "_next/image?url=%2Fbuilder%2Fbox-open-9.png&w=828&q=75"
+    ]
+  },
+  "giftBurgundy": {
+    "packaging": "gift",
+    "ribbon": "burgundy",
+    "mode": "closed",
+    "visible": [
+      "_next/image?url=%2Fbuilder%2Fbox-closed.png&w=828&q=75",
+      "_next/image?url=%2Fribbons%2Fburgundy.png&w=828&q=75",
+      "_next/image?url=%2Fbuilder%2Fbox-open-9.png&w=828&q=75"
+    ]
+  },
+  "corporate": {
+    "packaging": "corporate",
+    "ribbon": "none",
+    "mode": "closed",
+    "visible": [
+      "_next/image?url=%2Fboxes%2Fcorporate-sleeve.png&w=828&q=75",
+      "_next/image?url=%2Fbuilder%2Fbox-open-9.png&w=828&q=75"
+    ]
+  }
+}

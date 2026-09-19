@@ -1,0 +1,46 @@
+{
+  "step1": {
+    "filled": 1,
+    "counter": "1 of 9 chocolates",
+    "seaSaltCount": 1,
+    "seaSaltSlots": [
+      "5"
+    ]
+  },
+  "step2": {
+    "filled": 2,
+    "firstStillThere": true,
+    "milkCount": 1,
+    "seaSaltCount": 1,
+    "map": {
+      "0": "",
+      "1": "",
+      "2": "sample-milk-hazelnut",
+      "3": "",
+      "4": "",
+      "5": "sample-dark-sea-salt",
+      "6": "",
+      "7": "",
+      "8": ""
+    }
+  },
+  "step3": {
+    "filled": 3,
+    "previousUnchanged": true,
+    "whiteCount": 1
+  },
+  "step4Repeat": {
+    "filled": 4,
+    "milkCount": 2,
+    "seaSaltSame": true,
+    "whiteSame": true
+  },
+  "step5Full": {
+    "filledBeforeExtraClick": 9,
+    "filledAfterExtraClick": 9,
+    "fullNotice": true,
+    "seaSaltPreserved": true,
+    "saltedCaramelCount": 0,
+    "counter": "9 of 9 chocolates"
+  }
+}
