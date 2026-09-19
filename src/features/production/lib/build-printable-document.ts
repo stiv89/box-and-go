@@ -1,7 +1,10 @@
 import { BOX_SIZES } from "@/lib/constants";
+import { BRANDED_CHOCOLATE_IMPRINT_CSS } from "@/features/product-experience/lib/branded-chocolate-imprint";
 import type { BoxConfiguration, Chocolate, ProductionSpecification } from "@/types";
+import { getActiveCustomization } from "@/types";
 
-import { escapeHtml, renderBoxGridHtml } from "./html-utils";
+import { escapeHtml, renderNumberedSlotGridHtml } from "./html-utils";
+import { toImageDataUrl } from "./to-data-url";
 
 export interface BuildPrintableDocumentParams {
   configuration: BoxConfiguration;
@@ -9,18 +12,28 @@ export interface BuildPrintableDocumentParams {
   catalog: Chocolate[];
 }
 
-export function buildPrintableProductionHtml({
+export async function buildPrintableProductionHtml({
   configuration,
   spec,
   catalog,
-}: BuildPrintableDocumentParams): string {
+}: BuildPrintableDocumentParams): Promise<string> {
+  const portableCatalog = await embedCatalogImages(catalog, configuration);
   const boxLabel = BOX_SIZES[spec.boxSize].label;
+  const active = getActiveCustomization(spec.customization);
+  const ribbonLine = active.ribbonApplied
+    ? `${escapeHtml(spec.customization.ribbon.color)} (${escapeHtml(spec.customization.ribbon.style)})`
+    : "Not applied";
+  const logoLine = spec.customization.logo.url
+    ? active.sleeveLogoApplied
+      ? "Provided · sleeve"
+      : "Provided · branded piece"
+    : "Not provided";
 
   const breakdownRows =
     spec.chocolateBreakdown
       .map(
         (item) =>
-          `<tr><td>${escapeHtml(item.chocolateName)}</td><td>${item.perBox}</td><td>${item.total.toLocaleString()}</td></tr>`,
+          `<tr data-chocolate-id="${escapeHtml(item.chocolateId)}"><td>${escapeHtml(item.chocolateName)}</td><td>${item.perBox}</td><td>${item.total.toLocaleString()}</td></tr>`,
       )
       .join("") || `<tr><td colspan="3">No chocolates placed yet.</td></tr>`;
 
@@ -28,7 +41,7 @@ export function buildPrintableProductionHtml({
     spec.slots
       .map(
         (slot) =>
-          `<tr><td>${slot.slotIndex + 1}</td><td>${escapeHtml(slot.chocolateName)}</td></tr>`,
+          `<tr data-slot-index="${slot.slotIndex}" data-chocolate-id="${escapeHtml(slot.chocolateId)}"><td>${slot.slotIndex + 1}</td><td>${escapeHtml(slot.chocolateName)}</td></tr>`,
       )
       .join("") || `<tr><td colspan="2">No slots filled.</td></tr>`;
 
@@ -51,8 +64,12 @@ export function buildPrintableProductionHtml({
   .totals .stat { background: #f6efe4; border-radius: 8px; padding: 10px 16px; }
   .totals .stat .value { font-size: 20px; font-weight: 700; }
   .totals .stat .label { font-size: 11px; text-transform: uppercase; color: #6b5a4d; }
-  .box-grid { display: grid; gap: 4px; max-width: 200px; margin: 8px 0 20px; }
-  .box-grid .slot { aspect-ratio: 1; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+  .prod-grid { display: grid; gap: 8px; max-width: 420px; margin: 8px 0 20px; }
+  .prod-slot { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 6px; border: 1px solid #e5dccf; border-radius: 8px; background: #fbf6ee; min-height: 88px; }
+  .prod-slot img, .prod-slot .bng-branded-piece { width: 40px; height: 40px; object-fit: contain; background: transparent; }
+  ${BRANDED_CHOCOLATE_IMPRINT_CSS}
+  .prod-num { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #6b5a4d; }
+  .prod-name { font-size: 10px; text-align: center; line-height: 1.25; color: #2b1a10; }
   .custom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 13px; }
   .custom-grid dt { color: #6b5a4d; }
   .custom-grid dd { margin: 0; font-weight: 600; }
@@ -61,12 +78,13 @@ export function buildPrintableProductionHtml({
     @page { margin: 16mm; }
     table { page-break-inside: auto; }
     tr { page-break-inside: avoid; }
+    .prod-grid { page-break-inside: avoid; }
   }
 </style>
 </head>
 <body>
   <h1>Box &amp; Go — Production Specification</h1>
-  <p class="meta">Order ${escapeHtml(spec.orderId)} · Generated ${escapeHtml(new Date(spec.generatedAt).toLocaleString())}</p>
+  <p class="meta">Local specification ${escapeHtml(spec.orderId)} · Generated ${escapeHtml(new Date(spec.generatedAt).toLocaleString())}</p>
 
   <div class="totals">
     <div class="stat"><div class="value">${boxLabel}</div><div class="label">Box size</div></div>
@@ -75,7 +93,7 @@ export function buildPrintableProductionHtml({
   </div>
 
   <h2>Slot layout (${boxLabel})</h2>
-  ${renderBoxGridHtml(configuration, catalog)}
+  ${renderNumberedSlotGridHtml(configuration, portableCatalog)}
 
   <h2>Chocolates per box &times; total</h2>
   <table>
@@ -91,13 +109,42 @@ export function buildPrintableProductionHtml({
 
   <h2>Customization</h2>
   <dl class="custom-grid">
-    <dt>Ribbon color</dt><dd>${escapeHtml(spec.customization.ribbon.color)} (${escapeHtml(spec.customization.ribbon.style)})</dd>
+    <dt>Ribbon color</dt><dd>${ribbonLine}</dd>
     <dt>Packaging</dt><dd>${escapeHtml(spec.customization.packaging.wrapStyle)}</dd>
     <dt>Card message</dt><dd>${spec.customization.card.message.trim() ? escapeHtml(spec.customization.card.message) : "None"}</dd>
-    <dt>Corporate logo</dt><dd>${spec.customization.logo.url ? "Provided" : "Not provided"}</dd>
+    <dt>Corporate logo</dt><dd>${logoLine}</dd>
   </dl>
 </body>
 </html>`;
+}
+
+async function embedCatalogImages(
+  catalog: Chocolate[],
+  configuration: BoxConfiguration,
+): Promise<Chocolate[]> {
+  const needed = new Set(
+    configuration.box.slots
+      .map((slot) => slot.chocolateId)
+      .filter((id): id is string => Boolean(id)),
+  );
+  const cache = new Map<string, string>();
+
+  const next: Chocolate[] = [];
+  for (const chocolate of catalog) {
+    if (!needed.has(chocolate.id) || !chocolate.imageUrl) {
+      next.push(chocolate);
+      continue;
+    }
+    if (!cache.has(chocolate.imageUrl)) {
+      try {
+        cache.set(chocolate.imageUrl, await toImageDataUrl(chocolate.imageUrl, chocolate.name));
+      } catch {
+        cache.set(chocolate.imageUrl, chocolate.imageUrl);
+      }
+    }
+    next.push({ ...chocolate, imageUrl: cache.get(chocolate.imageUrl) });
+  }
+  return next;
 }
 
 /** Opens the document in a new tab and triggers the print dialog. Returns false if the popup was blocked. */

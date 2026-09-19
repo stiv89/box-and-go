@@ -13,7 +13,13 @@ export type {
   PackagingPreferences,
   RibbonConfiguration,
 } from "./customization";
-export { createDefaultCustomization } from "./customization";
+export {
+  createDefaultCustomization,
+  getActiveCustomization,
+  toExportCustomization,
+  INACTIVE_RIBBON,
+  type ActiveCustomization,
+} from "./customization";
 export type {
   CorporateOrder,
   OrderStatus,

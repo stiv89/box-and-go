@@ -1,3 +1,4 @@
+import { renderBrandedPieceHtml } from "@/features/product-experience/lib/branded-chocolate-imprint";
 import type { BoxConfiguration, Chocolate } from "@/types";
 
 export function escapeHtml(value: string): string {
@@ -9,21 +10,41 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-/** Static (non-interactive) HTML/CSS re-implementation of the box grid preview. */
-export function renderBoxGridHtml(configuration: BoxConfiguration, catalog: Chocolate[]): string {
+/**
+ * Numbered factory grid: position 1…N, chocolate photo when available, empty otherwise.
+ * Not a visual client proof — keep slot numbers visible.
+ */
+export function renderNumberedSlotGridHtml(
+  configuration: BoxConfiguration,
+  catalog: Chocolate[],
+): string {
   const { box } = configuration;
   const chocolateById = new Map(catalog.map((chocolate) => [chocolate.id, chocolate]));
+  const logoUrl = configuration.customization.logo.url;
 
   const cells = box.slots
     .map((slot) => {
       const chocolate = slot.chocolateId ? chocolateById.get(slot.chocolateId) : null;
-      const background = chocolate?.color ?? "#f1e9df";
-      const label = chocolate ? escapeHtml(chocolate.name) : "Empty slot";
-      return `<div class="slot" style="background:${background}" title="${label}"></div>`;
+      const label = chocolate ? escapeHtml(chocolate.name) : "Empty";
+      const photo = chocolate?.imageUrl
+        ? chocolate.isBranded
+          ? renderBrandedPieceHtml({
+              imageUrl: chocolate.imageUrl,
+              name: chocolate.name,
+              logoUrl,
+            })
+          : `<img src="${escapeHtml(chocolate.imageUrl)}" alt="${label}" />`
+        : "";
+      return `<div class="prod-slot" data-slot-index="${slot.index}" data-chocolate-id="${escapeHtml(chocolate?.id ?? "")}" title="${label}"><span class="prod-num">${slot.index + 1}</span>${photo}<span class="prod-name">${label}</span></div>`;
     })
     .join("");
 
-  return `<div class="box-grid" style="grid-template-columns: repeat(${box.cols}, 1fr);">${cells}</div>`;
+  return `<div class="prod-grid" style="grid-template-columns: repeat(${box.cols}, 1fr);">${cells}</div>`;
+}
+
+/** @deprecated Prefer renderNumberedSlotGridHtml for production documents. */
+export function renderBoxGridHtml(configuration: BoxConfiguration, catalog: Chocolate[]): string {
+  return renderNumberedSlotGridHtml(configuration, catalog);
 }
 
 export function downloadHtmlDocument(html: string, filename: string): void {

@@ -23,10 +23,19 @@ export interface BoxSlotGridProps {
   onSlotFocus: (slotIndex: number) => void;
   readOnly?: boolean;
   className?: string;
+  variant?: "default" | "cavity";
   /** Front-center slot suggestion for branded piece (KAN-7). */
   recommendedSlotIndex?: number | null;
   /** Logo URL for rendering on branded chocolate pieces. */
   logoUrl?: string | null;
+  /** Scale the piece relative to the cavity cell (compensates PNG padding). */
+  pieceScale?: number;
+  appearingSlotIndex?: number | null;
+  appearingNonce?: number;
+  columnGap?: string;
+  rowGap?: string;
+  /** Absolute cavity rectangles in % of the open-box image. */
+  cavities?: readonly { left: number; top: number; width: number; height: number }[];
 }
 
 function findChocolate(catalog: Chocolate[], id: ChocolateId | null) {
@@ -46,13 +55,20 @@ export function BoxSlotGrid({
   onSlotFocus,
   readOnly = false,
   className,
+  variant = "default",
   recommendedSlotIndex = null,
   logoUrl = null,
+  columnGap,
+  rowGap,
 }: BoxSlotGridProps) {
   return (
     <div
       className={cn("grid gap-2", className)}
-      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      style={{
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+        columnGap,
+        rowGap,
+      }}
       role="group"
       aria-label={`Chocolate box grid, ${rows} by ${cols}`}
     >
@@ -85,14 +101,19 @@ export function BoxSlotGrid({
               className={cn(
                 "group relative flex aspect-square w-full items-center justify-center rounded-lg border transition-all outline-none",
                 "focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2",
-                chocolate
-                  ? "border-[var(--chocolate-light)] bg-[var(--cream-dark)]"
-                  : "border-dashed border-[var(--chocolate-light)]/50 bg-[var(--cream)]",
+                variant === "cavity" &&
+                  "rounded-[18%] border-transparent bg-transparent shadow-none",
+                variant === "default" &&
+                  (chocolate
+                    ? "border-[var(--chocolate-light)] bg-[var(--cream-dark)]"
+                    : "border-dashed border-[var(--chocolate-light)]/50 bg-[var(--cream)]"),
                 isFocused && "ring-2 ring-[var(--gold)] ring-offset-1",
                 isRecommended &&
                   isEmpty &&
-                  "border-[var(--gold)]/70 bg-[var(--gold)]/5",
-                canPlace && !chocolate && "cursor-pointer hover:border-[var(--gold)] hover:bg-[var(--cream-dark)]",
+                  (variant === "cavity"
+                    ? "ring-1 ring-[var(--gold)]/70"
+                    : "border-[var(--gold)]/70 bg-[var(--gold)]/5"),
+                canPlace && !chocolate && "cursor-pointer hover:border-[var(--gold)]",
                 canPlace && chocolate && "cursor-pointer hover:border-[var(--gold)]",
               )}
             >
@@ -101,9 +122,10 @@ export function BoxSlotGrid({
                   chocolate={chocolate}
                   size="md"
                   logoUrl={logoUrl}
+                  className={variant === "cavity" ? "!size-[88%] !rounded-[18%]" : undefined}
                 />
               ) : (
-                <span className="text-xs text-muted-foreground/60">{slot.index + 1}</span>
+                <span className="text-[10px] text-muted-foreground/40">{slot.index + 1}</span>
               )}
             </button>
 

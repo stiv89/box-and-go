@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,6 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  TEAM_CHOCOLATHON_DISCLAIMER,
+  TEAM_MEMBERS,
+} from "@/lib/constants/team";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -77,8 +82,8 @@ interface JiraIssue {
   status: IssueStatus;
 }
 
-interface TeamMember {
-  name: string;
+interface JiraAssignment {
+  id: string;
   branch: string;
   folders: string;
   issues: JiraIssue[];
@@ -95,9 +100,9 @@ const completed: JiraIssue[] = [
   { key: "KAN-6", title: "Implement Product Experience MVP", status: "done" },
 ];
 
-const team: TeamMember[] = [
+const jiraAssignments: JiraAssignment[] = [
   {
-    name: "Esteban",
+    id: "esteban",
     branch: "develop / feature/* propias",
     folders: "src/features/product-experience/, layout, integración",
     issues: [
@@ -110,7 +115,7 @@ const team: TeamMember[] = [
     ],
   },
   {
-    name: "Fernando",
+    id: "fernando",
     branch: "feature/production-export",
     folders: "src/features/production/, src/components/production/",
     issues: [
@@ -121,7 +126,7 @@ const team: TeamMember[] = [
     ],
   },
   {
-    name: "Manuel",
+    id: "manuel",
     branch: "feature/box-builder",
     folders: "src/features/box-builder/, src/components/box-builder/",
     issues: [
@@ -165,16 +170,64 @@ export default function EquipoPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="mb-10">
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--gold-dark)]">
-          Hackathon · Cocoa Dolce
+          Hackathon · Chocolathon
         </p>
-        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-medium tracking-tight text-[var(--chocolate-dark)]">
+        <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight text-[var(--chocolate-dark)]">
           Guía del equipo
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
           Todo lo que necesitás para trabajar en Box &amp; Go: links, flujo Git,
           tickets de Jira y responsabilidades por persona.
         </p>
+        <p className="mt-3 max-w-2xl text-xs text-muted-foreground">
+          {TEAM_CHOCOLATHON_DISCLAIMER}
+        </p>
       </header>
+
+      <section className="mb-12">
+        <h2 className="font-serif text-2xl font-normal text-[var(--chocolate-dark)]">
+          Meet the team
+        </h2>
+        <ul className="mt-6 grid gap-4 sm:grid-cols-3">
+          {TEAM_MEMBERS.map((member) => (
+            <li
+              key={member.id}
+              className={cn(
+                "rounded-2xl border bg-card p-5",
+                member.featured
+                  ? "border-[var(--gold)]/50 shadow-sm"
+                  : "border-[var(--chocolate-light)]/20",
+              )}
+            >
+              <div
+                className={cn(
+                  "relative mx-auto overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-card",
+                  member.featured
+                    ? "size-28 ring-[var(--gold)]"
+                    : "size-24 ring-[var(--chocolate-light)]/45",
+                )}
+              >
+                <Image
+                  src={member.photoSrc}
+                  alt={member.photoAlt}
+                  fill
+                  sizes="112px"
+                  className="object-cover"
+                />
+              </div>
+              <p className="mt-4 text-center font-medium text-[var(--chocolate-dark)]">
+                {member.name}
+              </p>
+              <p className="mt-1 text-center text-xs font-medium text-[var(--gold-dark)]">
+                {member.role}
+              </p>
+              <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground">
+                {member.bio}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {/* Quick links */}
       <section className="mb-12 grid gap-4 sm:grid-cols-3">
@@ -200,7 +253,7 @@ export default function EquipoPage() {
 
       {/* Workflow */}
       <section className="mb-12">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--chocolate-dark)]">
+        <h2 className="font-serif text-2xl font-normal text-[var(--chocolate-dark)]">
           Cómo trabajar
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -226,7 +279,7 @@ export default function EquipoPage() {
 
       {/* Jira backlog */}
       <section className="mb-12">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--chocolate-dark)]">
+        <h2 className="font-serif text-2xl font-normal text-[var(--chocolate-dark)]">
           Backlog Jira — 16 issues
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -266,35 +319,40 @@ export default function EquipoPage() {
         </Card>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {team.map((member) => (
-            <Card key={member.name} className="border-[var(--chocolate-light)]/20">
-              <CardHeader>
-                <CardTitle className="font-[family-name:var(--font-display)] text-xl">
-                  {member.name}
-                </CardTitle>
-                <CardDescription>
-                  Rama:{" "}
-                  <code className="text-xs">{member.branch}</code>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-xs text-muted-foreground">
-                  Carpetas: <span className="font-mono">{member.folders}</span>
-                </p>
-                <ul className="space-y-2">
-                  {member.issues.map((issue) => (
-                    <IssueRow key={issue.key} issue={issue} />
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
+          {TEAM_MEMBERS.map((member) => {
+            const assignment = jiraAssignments.find((item) => item.id === member.id);
+            if (!assignment) return null;
+            return (
+              <Card key={member.id} className="border-[var(--chocolate-light)]/20">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">
+                    {member.name}
+                  </CardTitle>
+                  <CardDescription>
+                    Rama:{" "}
+                    <code className="text-xs">{assignment.branch}</code>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-xs text-muted-foreground">
+                    Carpetas:{" "}
+                    <span className="font-mono">{assignment.folders}</span>
+                  </p>
+                  <ul className="space-y-2">
+                    {assignment.issues.map((issue) => (
+                      <IssueRow key={issue.key} issue={issue} />
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
       {/* Rules */}
       <section className="mb-10">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--chocolate-dark)]">
+        <h2 className="font-serif text-2xl font-normal text-[var(--chocolate-dark)]">
           Reglas del equipo
         </h2>
         <ul className="mt-4 space-y-2">

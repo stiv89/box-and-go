@@ -6,6 +6,7 @@ import type {
   ProductionSlotSpec,
   ProductionSpecification,
 } from "@/types";
+import { toExportCustomization } from "@/types";
 
 export interface BuildProductionSpecificationOptions {
   orderId?: string;
@@ -21,7 +22,8 @@ export function buildProductionSpecification(
   catalog: Chocolate[],
   options: BuildProductionSpecificationOptions = {},
 ): ProductionSpecification {
-  const { box, customization, quantity } = configuration;
+  const { box, quantity } = configuration;
+  const customization = toExportCustomization(configuration.customization);
   const safeQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 0;
   const chocolateById = new Map(catalog.map((chocolate) => [chocolate.id, chocolate]));
 
@@ -56,7 +58,7 @@ export function buildProductionSpecification(
   const totalChocolates = chocolateBreakdown.reduce((sum, item) => sum + item.total, 0);
 
   return {
-    orderId: options.orderId ?? generateOrderId(),
+    orderId: options.orderId ?? generateLocalSpecId(),
     boxSize: box.size,
     slots,
     customization,
@@ -67,6 +69,6 @@ export function buildProductionSpecification(
   };
 }
 
-function generateOrderId(): string {
-  return `order-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+function generateLocalSpecId(): string {
+  return `local-spec-${Date.now().toString(36)}`;
 }

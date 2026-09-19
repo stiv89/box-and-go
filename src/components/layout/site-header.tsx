@@ -1,5 +1,9 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +11,28 @@ interface SiteHeaderProps {
   className?: string;
 }
 
-export function SiteHeader({ className }: SiteHeaderProps) {
+function GlassPillHeader({ className }: SiteHeaderProps) {
+  return (
+    <header
+      className={cn(
+        "pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center bg-transparent px-4 pt-4 sm:pt-5",
+        className,
+      )}
+    >
+      <Link
+        href="/"
+        className={cn(
+          "pointer-events-auto flex items-center bg-transparent outline-none transition-opacity hover:opacity-85",
+          "focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+        )}
+      >
+        <BrandLogo size="header" priority />
+      </Link>
+    </header>
+  );
+}
+
+function DefaultHeader({ className }: SiteHeaderProps) {
   return (
     <header
       className={cn(
@@ -18,22 +43,9 @@ export function SiteHeader({ className }: SiteHeaderProps) {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
-          className="group flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2"
+          className="group flex items-center outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2"
         >
-          <span
-            aria-hidden
-            className="inline-flex size-9 items-center justify-center rounded-lg bg-[var(--chocolate)] font-[family-name:var(--font-display)] text-lg text-[var(--cream)]"
-          >
-            B
-          </span>
-          <div className="leading-tight">
-            <span className="font-[family-name:var(--font-display)] text-lg font-medium text-[var(--chocolate-dark)]">
-              Box <span className="text-[var(--gold-dark)]">&amp;</span> Go
-            </span>
-            <span className="hidden text-[10px] tracking-widest text-muted-foreground uppercase sm:block">
-              Design. Approve. Produce.
-            </span>
-          </div>
+          <BrandLogo size="md" />
         </Link>
 
         <nav className="flex items-center gap-2 sm:gap-3">
@@ -57,4 +69,19 @@ export function SiteHeader({ className }: SiteHeaderProps) {
       </div>
     </header>
   );
+}
+
+export function SiteHeader(props: SiteHeaderProps) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  if (isHome) {
+    return <GlassPillHeader {...props} />;
+  }
+
+  if (pathname === "/builder") {
+    return null;
+  }
+
+  return <DefaultHeader {...props} />;
 }

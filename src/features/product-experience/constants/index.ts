@@ -1,4 +1,4 @@
-export { RIBBON_COLORS, type RibbonColorOption } from "./ribbon-colors";
+export { RIBBON_COLORS, getRibbonOption, type RibbonColorOption } from "./ribbon-colors";
 export {
   CARD_MESSAGE_MAX_LENGTH,
   PACKAGING_OPTIONS,

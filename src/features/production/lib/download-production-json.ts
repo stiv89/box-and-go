@@ -10,7 +10,7 @@ export function validateProductionSpecification(
 ): ProductionSpecValidation {
   const errors: string[] = [];
 
-  if (!spec.orderId) errors.push("Missing order id.");
+  if (!spec.orderId) errors.push("Missing local specification id.");
   if (!Number.isFinite(spec.quantity) || spec.quantity <= 0) {
     errors.push("Quantity must be at least 1 box.");
   }

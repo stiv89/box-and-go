@@ -3,7 +3,9 @@
 import { AlertTriangle, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandedImprintCaption } from "@/features/product-experience/components/branded-chocolate-piece";
 import { ChocolatePiece } from "@/features/product-experience/components/chocolate-piece";
+import { placeChocolateFromCatalog } from "@/features/product-experience/lib/place-chocolate";
 import {
   BOX_SIZES,
   BRANDED_CHOCOLATE_ID,
@@ -16,8 +18,6 @@ import { useBoxStore } from "@/stores/use-box-store";
 export function BrandedChocolatePanel() {
   const boxSize = useBoxStore((s) => s.boxSize);
   const customization = useBoxStore((s) => s.customization);
-  const selectedChocolateId = useBoxStore((s) => s.selectedChocolateId);
-  const setSelectedChocolate = useBoxStore((s) => s.setSelectedChocolate);
   const placeBrandedAtRecommended = useBoxStore((s) => s.placeBrandedAtRecommended);
 
   const logoUrl = customization.logo.url;
@@ -29,14 +29,14 @@ export function BrandedChocolatePanel() {
   if (!logoUrl) {
     return (
       <div className="rounded-xl border border-dashed border-[var(--chocolate-light)]/40 bg-[var(--cream)]/50 p-4 text-xs text-muted-foreground">
-        Upload a logo in the <strong>Customize</strong> tab to unlock the branded
+        Upload a logo in <strong>Make it yours</strong> to unlock the branded
         corporate chocolate piece.
       </div>
     );
   }
 
   const isAtRecommended = brandedSlot === recommended;
-  const isBrandedSelected = selectedChocolateId === BRANDED_CHOCOLATE_ID;
+  const isPlaced = brandedSlot !== null;
 
   return (
     <div className="space-y-3 rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4">
@@ -51,28 +51,29 @@ export function BrandedChocolatePanel() {
             Branded corporate piece
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Your logo imprinted on a chocolate disc. Select it, then click a slot — or
-            use the suggested front-center placement.
+            Visual mockup of your logo on a smooth disc. Local preview only — not
+            a print guarantee. Click to add it, or place it at the suggested
+            front-center cavity.
           </p>
         </div>
       </div>
 
+      <BrandedImprintCaption />
+
       <button
         type="button"
-        onClick={() =>
-          setSelectedChocolate(isBrandedSelected ? null : BRANDED_CHOCOLATE_ID)
-        }
-        aria-pressed={isBrandedSelected}
+        onClick={() => placeChocolateFromCatalog(BRANDED_CHOCOLATE_ID)}
+        aria-pressed={isPlaced}
         className={cn(
           "flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors outline-none",
           "focus-visible:ring-2 focus-visible:ring-[var(--gold)]",
-          isBrandedSelected
+          isPlaced
             ? "border-[var(--gold)] bg-[var(--gold)]/20 font-medium"
             : "border-[var(--chocolate-light)]/40 bg-card hover:bg-[var(--cream-dark)]",
         )}
       >
         <Sparkles className="size-3.5" />
-        {isBrandedSelected ? "Branded piece selected" : "Select branded piece"}
+        {isPlaced ? "Branded piece in the box" : "Add branded piece"}
       </button>
 
       <Button

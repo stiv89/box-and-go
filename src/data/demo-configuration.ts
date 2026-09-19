@@ -23,7 +23,7 @@ export function applyHackathonDemoConfiguration(
   store.setQuantity(500);
   store.updateRibbon({ color: "#b8956b", style: "champagne-gold" });
   store.updateCard({
-    message: "With gratitude from the Cocoa Dolce team — enjoy every piece.",
+    message: "With gratitude from our team — enjoy every piece.",
     fontStyle: "serif",
   });
   store.updatePackaging({ wrapStyle: "corporate", giftNote: "Corporate gifting order" });

@@ -5,7 +5,7 @@ import {
   DragOverlay,
   MouseSensor,
   TouchSensor,
-  pointerWithin,
+  closestCenter,
   useSensor,
   useSensors,
   type Announcements,
@@ -96,7 +96,7 @@ export function DndBuilderProvider({ children }: { children: ReactNode }) {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={pointerWithin}
+      collisionDetection={closestCenter}
       accessibility={{ announcements }}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}

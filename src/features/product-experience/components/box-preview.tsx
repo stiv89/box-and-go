@@ -73,7 +73,7 @@ export function BoxPreview({ interactive = true, className }: BoxPreviewProps) {
         )}
 
         <div className="mb-4 text-center">
-          <p className="font-[family-name:var(--font-display)] text-sm tracking-wide text-[var(--chocolate-dark)]">
+          <p className="text-sm font-semibold tracking-wide text-[var(--chocolate-dark)]">
             Box &amp; Go
           </p>
           <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -105,7 +105,7 @@ export function BoxPreview({ interactive = true, className }: BoxPreviewProps) {
               className={cn(
                 "mt-1 text-xs leading-relaxed text-[var(--chocolate-dark)]",
                 customization.card.fontStyle === "serif"
-                  ? "font-[family-name:var(--font-display)]"
+                  ? "font-serif italic"
                   : "font-sans",
               )}
             >

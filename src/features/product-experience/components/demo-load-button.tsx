@@ -4,11 +4,13 @@ import { Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { applyHackathonDemoConfiguration } from "@/data/demo-configuration";
+import { notify } from "@/lib/notify";
 import { useBoxStore } from "@/stores/use-box-store";
 
 export function DemoLoadButton() {
   function handleLoadDemo() {
     applyHackathonDemoConfiguration(useBoxStore.getState());
+    notify.success("Demo box loaded. Review it, then export or request a quote.");
   }
 
   return (

@@ -1,11 +1,12 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PACKAGING_OPTIONS, RIBBON_COLORS } from "@/features/product-experience/constants";
+import {
+  getRibbonOption,
+  PACKAGING_OPTIONS,
+} from "@/features/product-experience/constants";
 import { BOX_SIZES, getRecommendedBrandedSlotIndex } from "@/lib/constants";
+import { getActiveCustomization } from "@/types";
 import { useBoxStore } from "@/stores/use-box-store";
 
 export function OrderSummary() {
@@ -13,34 +14,23 @@ export function OrderSummary() {
   const slots = useBoxStore((s) => s.slots);
   const quantity = useBoxStore((s) => s.quantity);
   const customization = useBoxStore((s) => s.customization);
-  const setQuantity = useBoxStore((s) => s.setQuantity);
 
   const filledCount = slots.filter((s) => s.chocolateId !== null).length;
   const totalChocolates = filledCount * quantity;
 
-  const ribbonLabel =
-    RIBBON_COLORS.find((r) => r.color === customization.ribbon.color)?.label ??
-    "Custom";
-
+  const active = getActiveCustomization(customization);
   const packagingLabel =
-    PACKAGING_OPTIONS.find((p) => p.id === customization.packaging.wrapStyle)?.label ??
-    customization.packaging.wrapStyle;
-
-  function adjustQuantity(delta: number) {
-    setQuantity(quantity + delta);
-  }
-
-  function handleQuantityInput(value: string) {
-    const parsed = parseInt(value, 10);
-    if (!Number.isNaN(parsed)) {
-      setQuantity(parsed);
-    }
-  }
+    PACKAGING_OPTIONS.find((option) => option.id === active.wrapStyle)?.label ??
+    active.wrapStyle;
+  const ribbonLabel =
+    active.ribbonApplied && active.ribbon
+      ? getRibbonOption(active.ribbon).label
+      : null;
 
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-[family-name:var(--font-display)] text-lg font-medium">
+        <h2 className="text-lg font-semibold">
           Order summary
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -71,17 +61,21 @@ export function OrderSummary() {
           <dd className="font-medium">{filledCount}</dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Ribbon</dt>
-          <dd className="font-medium">{ribbonLabel}</dd>
-        </div>
-        <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Packaging</dt>
           <dd className="font-medium">{packagingLabel}</dd>
         </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Logo</dt>
-          <dd className="font-medium">{customization.logo.url ? "Uploaded" : "None"}</dd>
-        </div>
+        {ribbonLabel ? (
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Ribbon</dt>
+            <dd className="font-medium">{ribbonLabel}</dd>
+          </div>
+        ) : null}
+        {active.sleeveLogoApplied ? (
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Logo</dt>
+            <dd className="font-medium">Applied on sleeve</dd>
+          </div>
+        ) : null}
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Branded piece</dt>
           <dd className="font-medium">
@@ -111,48 +105,19 @@ export function OrderSummary() {
             {customization.card.message.trim() || "None"}
           </dd>
         </div>
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted-foreground">Number of boxes</dt>
+          <dd className="font-medium tabular-nums">{quantity.toLocaleString()}</dd>
+        </div>
       </dl>
 
       <Separator />
-
-      <div className="space-y-2">
-        <LabelRow label="Number of boxes" />
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            aria-label="Decrease quantity"
-            onClick={() => adjustQuantity(-1)}
-            disabled={quantity <= 1}
-          >
-            <Minus className="size-3.5" />
-          </Button>
-          <input
-            type="number"
-            min={1}
-            value={quantity}
-            onChange={(e) => handleQuantityInput(e.target.value)}
-            className="h-8 w-full rounded-lg border border-[var(--chocolate-light)]/40 bg-card px-3 text-center text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
-            aria-label="Number of boxes"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            aria-label="Increase quantity"
-            onClick={() => adjustQuantity(1)}
-          >
-            <Plus className="size-3.5" />
-          </Button>
-        </div>
-      </div>
 
       <div className="rounded-xl border border-[var(--chocolate)]/20 bg-[var(--chocolate)]/5 p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           Total chocolates required
         </p>
-        <p className="mt-1 font-[family-name:var(--font-display)] text-3xl font-medium text-[var(--chocolate-dark)]">
+        <p className="mt-1 text-3xl font-semibold tabular-nums text-[var(--chocolate-dark)]">
           {totalChocolates.toLocaleString()}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -161,8 +126,4 @@ export function OrderSummary() {
       </div>
     </div>
   );
-}
-
-function LabelRow({ label }: { label: string }) {
-  return <p className="text-sm font-medium">{label}</p>;
 }

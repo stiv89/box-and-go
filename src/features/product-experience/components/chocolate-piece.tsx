@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 
+import { BrandedChocolatePiece } from "@/features/product-experience/components/branded-chocolate-piece";
 import { cn } from "@/lib/utils";
 import type { Chocolate } from "@/types";
 
@@ -8,20 +9,14 @@ interface ChocolatePieceProps {
   size?: "sm" | "md" | "lg";
   className?: string;
   style?: CSSProperties;
-  /** When set, renders the corporate logo on a branded chocolate disc. */
+  /** When set, renders the corporate logo as a surface imprint on a branded disc. */
   logoUrl?: string | null;
 }
 
 const sizeClasses = {
-  sm: "size-8 rounded-md",
-  md: "size-12 rounded-lg",
-  lg: "size-16 rounded-xl",
-};
-
-const logoSizeClasses = {
-  sm: "max-h-5 max-w-5",
-  md: "max-h-8 max-w-8",
-  lg: "max-h-10 max-w-10",
+  sm: "size-8",
+  md: "size-12",
+  lg: "size-16",
 };
 
 export function ChocolatePiece({
@@ -31,38 +26,53 @@ export function ChocolatePiece({
   style,
   logoUrl,
 }: ChocolatePieceProps) {
-  const showLogo = Boolean(chocolate.isBranded && logoUrl);
+  if (chocolate.isBranded) {
+    return (
+      <BrandedChocolatePiece
+        chocolate={chocolate}
+        logoUrl={logoUrl}
+        size={size}
+        className={className}
+        style={style}
+      />
+    );
+  }
+
+  const hasImage = Boolean(chocolate.imageUrl);
 
   return (
     <div
       className={cn(
-        "relative overflow-hidden shadow-sm ring-1 ring-black/10",
+        "relative",
         sizeClasses[size],
-        chocolate.isBranded && "ring-2 ring-[var(--gold)]/60",
+        hasImage
+          ? "bg-transparent shadow-none ring-0"
+          : "overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10",
         className,
       )}
-      style={{ backgroundColor: chocolate.color, ...style }}
+      style={!hasImage ? { backgroundColor: chocolate.color, ...style } : style}
       title={chocolate.name}
     >
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.45) 0%, transparent 50%, rgba(0,0,0,0.15) 100%)",
-        }}
-      />
-      <div className="absolute inset-x-1 top-1 h-1/4 rounded-full bg-white/20 blur-[1px]" />
-
-      {showLogo && logoUrl && (
+      {hasImage && chocolate.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={logoUrl}
+          src={chocolate.imageUrl}
           alt=""
-          className={cn(
-            "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-sm",
-            logoSizeClasses[size],
-          )}
+          className="absolute inset-0 size-full object-contain"
         />
+      )}
+
+      {!hasImage && (
+        <>
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(255,255,255,0.45) 0%, transparent 50%, rgba(0,0,0,0.15) 100%)",
+            }}
+          />
+          <div className="absolute inset-x-1 top-1 h-1/4 rounded-full bg-white/20 blur-[1px]" />
+        </>
       )}
     </div>
   );

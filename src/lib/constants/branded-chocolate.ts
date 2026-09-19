@@ -1,3 +1,4 @@
+import { FLAVOR_IMAGES } from "@/lib/constants/flavor-images";
 import type { Chocolate, ChocolateId } from "@/types";
 
 /** Reserved catalog id for the corporate logo chocolate piece. */
@@ -7,9 +8,11 @@ export function createBrandedChocolate(): Chocolate {
   return {
     id: BRANDED_CHOCOLATE_ID,
     name: "Branded Corporate Piece",
-    description: "Milk chocolate disc imprinted with your uploaded logo.",
+    description:
+      "Smooth milk chocolate disc with a visual mockup of your uploaded logo as a surface imprint.",
     flavor: "Branded",
     color: "#c4a574",
+    imageUrl: FLAVOR_IMAGES.brandedPlain,
     isBranded: true,
   };
 }

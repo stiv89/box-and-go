@@ -1,6 +1,14 @@
+"use client";
+
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 import { DEMO_CHOCOLATES } from "@/data/demo-chocolates";
+import { RIBBON_COLORS } from "@/features/product-experience/constants";
+import {
+  isPublicCatalogId,
+  type PublicSharePayload,
+} from "@/features/product-experience/lib/share-config";
 import { createEmptyBox } from "@/lib/box-factory";
 import {
   BRANDED_CHOCOLATE_ID,
@@ -41,6 +49,8 @@ export interface BoxStoreState {
   updatePackaging: (partial: Partial<PackagingPreferences>) => void;
   setLogoUrl: (url: string | null) => void;
   placeBrandedAtRecommended: () => void;
+  applyPublicShareConfig: (payload: PublicSharePayload) => void;
+  resetBox: () => void;
 }
 
 function catalogWithBranded(hasLogo: boolean): Chocolate[] {
@@ -58,7 +68,11 @@ function stripBrandedFromSlots(
   );
 }
 
-export const useBoxStore = create<BoxStoreState>((set, get) => ({
+const SESSION_KEY = "box-and-go-builder-session";
+
+export const useBoxStore = create<BoxStoreState>()(
+  persist(
+    (set, get) => ({
   boxSize: DEFAULT_BOX_SIZE,
   slots: createEmptyBox(DEFAULT_BOX_SIZE).slots,
   quantity: 1,
@@ -175,8 +189,17 @@ export const useBoxStore = create<BoxStoreState>((set, get) => ({
       return;
     }
 
-    get().updateLogo({ url });
-    set({ catalog: catalogWithBranded(true) });
+    set({
+      catalog: catalogWithBranded(true),
+      selectedChocolateId:
+        state.selectedChocolateId === BRANDED_CHOCOLATE_ID
+          ? null
+          : state.selectedChocolateId,
+      customization: {
+        ...state.customization,
+        logo: { ...state.customization.logo, url },
+      },
+    });
   },
 
   placeBrandedAtRecommended: () => {
@@ -185,12 +208,137 @@ export const useBoxStore = create<BoxStoreState>((set, get) => ({
 
     const box = createEmptyBox(state.boxSize);
     const recommended = getRecommendedBrandedSlotIndex(box.rows, box.cols);
+    const occupant =
+      state.slots.find((slot) => slot.index === recommended)?.chocolateId ?? null;
+    const brandedFrom =
+      state.slots.find((slot) => isBrandedChocolateId(slot.chocolateId))?.index ??
+      null;
 
-    set({ selectedChocolateId: BRANDED_CHOCOLATE_ID });
+    if (brandedFrom === recommended) {
+      set({ selectedChocolateId: null, focusedSlotIndex: null });
+      return;
+    }
+
+    const occupantIsOther = occupant !== null && !isBrandedChocolateId(occupant);
+    let occupantDest: number | null = null;
+    if (occupantIsOther) {
+      occupantDest =
+        brandedFrom !== null
+          ? brandedFrom
+          : (state.slots.find(
+              (slot) => slot.chocolateId === null && slot.index !== recommended,
+            )?.index ?? null);
+      if (occupantDest === null) {
+        set({ selectedChocolateId: null, focusedSlotIndex: null });
+        return;
+      }
+    }
+
     get().setSlotChocolate(recommended, BRANDED_CHOCOLATE_ID);
-    set({ focusedSlotIndex: recommended });
+    if (occupantIsOther && occupantDest !== null && occupantDest !== recommended) {
+      get().setSlotChocolate(occupantDest, occupant);
+    }
+    set({ selectedChocolateId: null, focusedSlotIndex: null });
   },
-}));
+
+  applyPublicShareConfig: (payload) => {
+    const box = createEmptyBox(payload.s);
+    const giftRibbon =
+      payload.p === "gift" && payload.r
+        ? RIBBON_COLORS.find((option) => option.id === payload.r)
+        : undefined;
+
+    set((state) => ({
+      boxSize: payload.s,
+      quantity: payload.q && payload.q > 0 ? payload.q : 1,
+      slots: box.slots.map((slot, index) => {
+        const rawId = payload.i[index] ?? "";
+        const chocolateId = isPublicCatalogId(rawId) ? rawId : null;
+        return { ...slot, chocolateId };
+      }),
+      selectedChocolateId: null,
+      focusedSlotIndex: null,
+      catalog: catalogWithBranded(false),
+      customization: {
+        ...state.customization,
+        logo: { ...state.customization.logo, url: null },
+        ribbon: giftRibbon
+          ? { color: giftRibbon.color, style: giftRibbon.id }
+          : state.customization.ribbon,
+        card: {
+          ...state.customization.card,
+          message: payload.m ?? "",
+        },
+        packaging: {
+          ...state.customization.packaging,
+          wrapStyle: payload.p,
+        },
+        brandedPlacement: { slotIndex: null },
+      },
+    }));
+  },
+
+  resetBox: () => {
+    const url = get().customization.logo.url;
+    if (url?.startsWith("blob:")) {
+      URL.revokeObjectURL(url);
+    }
+    set({
+      boxSize: DEFAULT_BOX_SIZE,
+      slots: createEmptyBox(DEFAULT_BOX_SIZE).slots,
+      quantity: 1,
+      catalog: catalogWithBranded(false),
+      selectedChocolateId: null,
+      focusedSlotIndex: null,
+      customization: createDefaultCustomization(),
+    });
+  },
+    }),
+    {
+      name: SESSION_KEY,
+      storage: createJSONStorage(() => {
+        if (typeof window === "undefined") {
+          return {
+            getItem: () => null,
+            setItem: () => {},
+            removeItem: () => {},
+          };
+        }
+        return sessionStorage;
+      }),
+      partialize: (state) => ({
+        boxSize: state.boxSize,
+        slots: state.slots,
+        quantity: state.quantity,
+        customization: state.customization,
+      }),
+      skipHydration: true,
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<BoxStoreState> | undefined;
+        if (!saved) return current;
+        const customization = saved.customization ?? current.customization;
+        const logoUrl = customization.logo?.url ?? null;
+        const safeLogo =
+          logoUrl && (logoUrl.startsWith("data:image/") || logoUrl.startsWith("/"))
+            ? logoUrl
+            : null;
+        const nextCustomization = {
+          ...current.customization,
+          ...customization,
+          logo: { ...current.customization.logo, ...customization.logo, url: safeLogo },
+        };
+        return {
+          ...current,
+          boxSize: saved.boxSize ?? current.boxSize,
+          slots: saved.slots ?? current.slots,
+          quantity: saved.quantity ?? current.quantity,
+          customization: nextCustomization,
+          catalog: catalogWithBranded(Boolean(safeLogo)),
+        };
+      },
+    },
+  ),
+);
 
 /** Convenience selector for the full configuration shape. */
 export function getBoxConfigurationFromStore(state: BoxStoreState) {

@@ -13,9 +13,15 @@ export {
   type BuildPrintableDocumentParams,
 } from "./lib/build-printable-document";
 export {
+  assembleClientProofHtml,
   buildClientProofHtml,
   type BuildClientProofParams,
 } from "./lib/build-client-proof";
+export { buildProofSheetModel } from "./lib/proof-sheet-model";
 export { downloadHtmlDocument } from "./lib/html-utils";
+export {
+  downloadClientProofPdf,
+  htmlDocumentToPdfBlob,
+} from "./lib/download-client-proof-pdf";
 export { preparePortableConfiguration } from "./lib/prepare-export-configuration";
 export { toPortableLogoDataUrl } from "./lib/portable-logo";

@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-manrope);
+  --font-serif: var(--font-instrument-serif);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-manrope);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -143,4 +144,90 @@
   p {
     @apply text-pretty;
   }
+}
+
+@keyframes team-credits-beacon {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--gold) 70%, transparent);
+  }
+  45% {
+    box-shadow: 0 0 0 8px color-mix(in oklab, var(--gold) 28%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.team-credits-beacon {
+  animation: team-credits-beacon 1.4s ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-credits-beacon {
+    animation: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--gold) 65%, transparent);
+  }
+}
+
+/* Keep in sync with BRANDED_CHOCOLATE_IMPRINT_CSS (catalog, cavities, and HTML proof). */
+.bng-branded-piece {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  background: transparent;
+}
+.bng-branded-piece__base {
+  position: relative;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  background: transparent;
+}
+.bng-branded-piece__imprint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mix-blend-mode: overlay;
+  -webkit-mask-image: var(--bng-branded-mask);
+  mask-image: var(--bng-branded-mask);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+.bng-branded-piece__well {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40%;
+  height: 40%;
+  transform: translateY(-3%);
+}
+.bng-branded-piece__mark {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.92;
+  filter: contrast(1.08) saturate(0.95);
+}
+.bng-branded-piece__well::after {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 34% 30%, rgba(255, 255, 255, 0.18), transparent 62%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
 }

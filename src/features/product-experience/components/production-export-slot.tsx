@@ -5,15 +5,18 @@ import { Download, FileOutput, Printer, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  buildClientProofHtml,
+  assembleClientProofHtml,
   buildPrintableProductionHtml,
   buildProductionSpecification,
+  downloadClientProofPdf,
   downloadHtmlDocument,
   downloadProductionSpecificationJson,
   openPrintableProductionDocument,
   preparePortableConfiguration,
   validateProductionSpecification,
 } from "@/features/production";
+import { notify } from "@/lib/notify";
+import { toUserFacingError, USER_ERROR_EXPORT } from "@/lib/user-facing-error";
 import { getBoxConfigurationFromStore, useBoxStore } from "@/stores/use-box-store";
 import type { BoxConfiguration, ProductionSpecification } from "@/types";
 
@@ -26,7 +29,10 @@ export function ProductionExportSlot() {
 
   async function runExport(
     action: ExportAction,
-    run: (args: { configuration: BoxConfiguration; spec: ProductionSpecification }) => void,
+    run: (args: {
+      configuration: BoxConfiguration;
+      spec: ProductionSpecification;
+    }) => void | Promise<void>,
   ) {
     setErrors([]);
     setPending(action);
@@ -38,12 +44,22 @@ export function ProductionExportSlot() {
       const validation = validateProductionSpecification(spec);
       if (!validation.valid) {
         setErrors(validation.errors);
+        notify.error(validation.errors[0] ?? USER_ERROR_EXPORT);
         return;
       }
 
-      run({ configuration, spec });
+      await run({ configuration, spec });
+      notify.success(
+        action === "json"
+          ? "Production JSON downloaded."
+          : action === "print"
+            ? "Printable specification is ready."
+            : "Client proof PDF downloaded.",
+      );
     } catch (error) {
-      setErrors([error instanceof Error ? error.message : "Export failed."]);
+      const message = toUserFacingError(error, USER_ERROR_EXPORT);
+      setErrors([message]);
+      notify.error(message, { onRetry: () => void runExport(action, run) });
     } finally {
       setPending(null);
     }
@@ -56,8 +72,8 @@ export function ProductionExportSlot() {
   }
 
   function handleOpenPrintable() {
-    void runExport("print", ({ configuration, spec }) => {
-      const html = buildPrintableProductionHtml({ configuration, spec, catalog });
+    void runExport("print", async ({ configuration, spec }) => {
+      const html = await buildPrintableProductionHtml({ configuration, spec, catalog });
       const opened = openPrintableProductionDocument(html);
       if (!opened) {
         downloadHtmlDocument(html, `box-and-go-production-${spec.orderId}.html`);
@@ -66,9 +82,9 @@ export function ProductionExportSlot() {
   }
 
   function handleDownloadProof() {
-    void runExport("proof", ({ configuration, spec }) => {
-      const html = buildClientProofHtml({ configuration, spec, catalog });
-      downloadHtmlDocument(html, `box-and-go-proof-${spec.orderId}.html`);
+    void runExport("proof", async ({ configuration, spec }) => {
+      const { html } = await assembleClientProofHtml({ configuration, spec, catalog });
+      await downloadClientProofPdf(html, "box-and-go-proof.pdf");
     });
   }
 
@@ -87,7 +103,7 @@ export function ProductionExportSlot() {
           </div>
 
           {errors.length > 0 && (
-            <ul className="space-y-1 rounded-lg border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
+            <ul className="space-y-1 rounded-lg border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive" role="alert">
               {errors.map((error) => (
                 <li key={error}>{error}</li>
               ))}
@@ -123,7 +139,7 @@ export function ProductionExportSlot() {
               disabled={pending !== null}
             >
               <Share2 className="size-3.5" />
-              {pending === "proof" ? "Preparing…" : "Download client proof"}
+              {pending === "proof" ? "Preparing…" : "Download client proof PDF"}
             </Button>
           </div>
         </div>

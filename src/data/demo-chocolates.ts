@@ -1,8 +1,9 @@
+import { FLAVOR_IMAGES } from "@/lib/constants/flavor-images";
 import type { Chocolate } from "@/types";
 
 /**
- * SAMPLE DATA — not Cocoa Dolce's real catalog.
- * Used for local development and UI prototyping only.
+ * Sample catalog — 9 flavors matching the hero box assortment.
+ * Product shots live in /public/sabores/.
  */
 export const DEMO_CHOCOLATES: Chocolate[] = [
   {
@@ -11,6 +12,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "72% dark chocolate with flaky sea salt.",
     flavor: "Dark",
     color: "#3d2314",
+    imageUrl: FLAVOR_IMAGES.darkSeaSalt,
   },
   {
     id: "sample-milk-hazelnut",
@@ -18,6 +20,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "Creamy milk chocolate with roasted hazelnut ganache.",
     flavor: "Milk",
     color: "#8b5a2b",
+    imageUrl: FLAVOR_IMAGES.milkHazelnut,
   },
   {
     id: "sample-white-raspberry",
@@ -25,6 +28,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "White chocolate infused with raspberry purée.",
     flavor: "White",
     color: "#e8c4c4",
+    imageUrl: FLAVOR_IMAGES.whiteRaspberry,
   },
   {
     id: "sample-caramel-pecan",
@@ -32,6 +36,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "Soft caramel center with toasted pecan pieces.",
     flavor: "Caramel",
     color: "#a0522d",
+    imageUrl: FLAVOR_IMAGES.caramelPecan,
   },
   {
     id: "sample-espresso-bean",
@@ -39,6 +44,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "Dark chocolate shell around a crisp espresso bean.",
     flavor: "Coffee",
     color: "#4a3728",
+    imageUrl: FLAVOR_IMAGES.espressoBean,
   },
   {
     id: "sample-mint-crisp",
@@ -46,6 +52,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "Dark chocolate with peppermint oil and rice crisps.",
     flavor: "Mint",
     color: "#2f4f3a",
+    imageUrl: FLAVOR_IMAGES.mintCrisp,
   },
   {
     id: "sample-orange-zest",
@@ -53,6 +60,7 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "Milk chocolate ganache with candied orange peel.",
     flavor: "Citrus",
     color: "#c67b3c",
+    imageUrl: FLAVOR_IMAGES.orangeZest,
   },
   {
     id: "sample-champagne-truffle",
@@ -60,5 +68,14 @@ export const DEMO_CHOCOLATES: Chocolate[] = [
     description: "White chocolate truffle with a hint of sparkling wine.",
     flavor: "Truffle",
     color: "#f5e6d3",
+    imageUrl: FLAVOR_IMAGES.champagneTruffle,
+  },
+  {
+    id: "sample-salted-caramel",
+    name: "Salted Caramel",
+    description: "Milk chocolate with caramel drizzle and sea salt.",
+    flavor: "Salted",
+    color: "#9a6b3a",
+    imageUrl: FLAVOR_IMAGES.saltedCaramel,
   },
 ];
