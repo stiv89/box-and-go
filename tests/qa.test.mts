@@ -44,6 +44,24 @@ test("share round-trip keeps layout and strips branded / logo", () => {
   assert.equal(JSON.stringify(decoded).includes("data:"), false);
 });
 
+test("decodeShareConfig recovers tokens polluted by share-sheet copy", () => {
+  const payload = publicShareFromSelection({
+    boxSize: 9,
+    slots: Array.from({ length: 9 }, (_, index) => ({
+      chocolateId: DEMO_CHOCOLATES[index % DEMO_CHOCOLATES.length]!.id,
+    })),
+    ribbon: { style: "classic-brown", color: "#5c3d2e" },
+    packagingId: "gift",
+    quantity: 1,
+  });
+  const encoded = encodeShareConfig(payload);
+  const polluted = `${encoded} A chocolate box from Box & Go.`;
+  const decoded = decodeShareConfig(polluted);
+  assert.ok(decoded);
+  assert.equal(decoded.s, 9);
+  assert.equal(decoded.p, "gift");
+});
+
 test("checkout success guard rejects fake payments and incomplete local quotes", () => {
   assert.equal(
     isPresentableCheckoutSuccess({

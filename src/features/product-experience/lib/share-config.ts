@@ -143,10 +143,20 @@ function parseShareJson(json: string): PublicSharePayload | null {
   }
 }
 
-export function decodeShareConfig(raw: string): PublicSharePayload | null {
-  if (!raw || /[^A-Za-z0-9_-]/.test(raw)) return null;
+function sanitizeShareToken(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  // Share sheets often append copy like " A chocolate box from Box & Go."
+  // The "&" then splits the query, so `c` arrives with spaces/junk after the token.
+  const match = trimmed.match(/^[A-Za-z0-9_-]+/);
+  return match?.[0] ?? "";
+}
 
-  const bytes = base64UrlToBytes(raw);
+export function decodeShareConfig(raw: string): PublicSharePayload | null {
+  const token = sanitizeShareToken(raw);
+  if (!token) return null;
+
+  const bytes = base64UrlToBytes(token);
   if (!bytes) return null;
 
   const obfuscated = bytesToJson(xorBytes(bytes));

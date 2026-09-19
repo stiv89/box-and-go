@@ -110,9 +110,6 @@ export function ShareCreationPanel({
     try {
       await navigator.share({
         title: "Box & Go",
-        text: isDraft
-          ? "A draft chocolate box from Box & Go."
-          : "A chocolate box from Box & Go.",
         url: shareUrl,
       });
       notify.success("Shared.");
