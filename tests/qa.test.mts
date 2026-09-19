@@ -8,6 +8,7 @@ import {
   encodeShareConfig,
   publicShareFromSelection,
 } from "../src/features/product-experience/lib/share-config.ts";
+import { suggestChocolatesForColors } from "../src/features/product-experience/lib/suggest-palette.ts";
 import { placeChocolateFromCatalog } from "../src/features/product-experience/lib/place-chocolate.ts";
 import { buildProductionSpecification } from "../src/features/production/lib/build-production-specification.ts";
 import { validateProductionSpecification } from "../src/features/production/lib/download-production-json.ts";
@@ -157,6 +158,15 @@ test("production spec uses a local specification id and validates empty boxes", 
   const filledSpec = buildProductionSpecification(configuration, DEMO_CHOCOLATES);
   assert.equal(validateProductionSpecification(filledSpec).valid, true);
   assert.equal(filledSpec.slots[0]?.chocolateId, DEMO_CHOCOLATES[0]!.id);
+});
+
+test("suggestChocolatesForColors ranks near-matching flavors", () => {
+  const dark = suggestChocolatesForColors(["#3d2314"], DEMO_CHOCOLATES, 1);
+  assert.equal(dark[0]?.id, "sample-dark-sea-salt");
+  const mint = suggestChocolatesForColors(["#2f4f3a"], DEMO_CHOCOLATES, 1);
+  assert.equal(mint[0]?.id, "sample-mint-crisp");
+  const none = suggestChocolatesForColors([], DEMO_CHOCOLATES, 3);
+  assert.equal(none.length, 0);
 });
 
 test("logo validation rejects empty, wrong type, and oversized files", () => {

@@ -11,6 +11,7 @@ import {
   PACKAGING_OPTIONS,
   RIBBON_COLORS,
 } from "@/features/product-experience/constants";
+import { useLogoPalette } from "@/features/product-experience/hooks/use-logo-palette";
 import { describeLogoFailure, readValidatedLogoDataUrl } from "@/lib/logo-file";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ export function CustomizationPanel({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
   const [logoBusy, setLogoBusy] = useState(false);
+  const { colors, suggestions } = useLogoPalette();
 
   const showLogo = sections.includes("logo");
   const showRibbon = sections.includes("ribbon");
@@ -98,35 +100,54 @@ export function CustomizationPanel({
       </div>
 
       {customization.logo.url ? (
-        <div className="flex items-center gap-2.5 rounded-xl border border-[var(--chocolate-light)]/30 bg-card px-2.5 py-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={customization.logo.url}
-            alt="Uploaded logo"
-            className="max-h-9 max-w-[72px] object-contain"
-          />
-          <div className="flex flex-1 flex-wrap gap-1.5">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-9 min-h-9 px-2.5"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={logoBusy}
-            >
-              Replace
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-9 min-h-9 px-2.5"
-              onClick={handleLogoRemove}
-            >
-              <Trash2 className="size-3.5" />
-              Remove
-            </Button>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--chocolate-light)]/30 bg-card px-2.5 py-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={customization.logo.url}
+              alt="Uploaded logo"
+              className="max-h-9 max-w-[72px] object-contain"
+            />
+            <div className="flex flex-1 flex-wrap gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-9 min-h-9 px-2.5"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={logoBusy}
+              >
+                Replace
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-9 min-h-9 px-2.5"
+                onClick={handleLogoRemove}
+              >
+                <Trash2 className="size-3.5" />
+                Remove
+              </Button>
+            </div>
           </div>
+          {colors.length > 0 && (
+            <p className="flex flex-wrap items-center gap-1.5 px-0.5 text-[10px] text-muted-foreground">
+              {colors.map((color) => (
+                <span
+                  key={color}
+                  className="size-2.5 rounded-full ring-1 ring-black/10"
+                  style={{ backgroundColor: color }}
+                  aria-hidden
+                />
+              ))}
+              <span>
+                {suggestions.length > 0
+                  ? `Pairs with ${suggestions.map((chocolate) => chocolate.name).join(", ")}`
+                  : "Palette from this logo"}
+              </span>
+            </p>
+          )}
         </div>
       ) : (
         <button

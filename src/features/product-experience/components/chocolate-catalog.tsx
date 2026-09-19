@@ -5,6 +5,7 @@ import { Sparkles, X } from "lucide-react";
 import { BrandedImprintCaption } from "@/features/product-experience/components/branded-chocolate-piece";
 import { ChocolatePiece } from "@/features/product-experience/components/chocolate-piece";
 import { useBuilderSessionUi } from "@/features/product-experience/hooks/use-builder-session-ui";
+import { useLogoPalette } from "@/features/product-experience/hooks/use-logo-palette";
 import {
   placeChocolateFromCatalog,
   removeOneOfFlavor,
@@ -17,10 +18,12 @@ function CatalogCard({
   chocolate,
   logoUrl,
   quantity,
+  suggested = false,
 }: {
   chocolate: Chocolate;
   logoUrl: string | null;
   quantity: number;
+  suggested?: boolean;
 }) {
   const filled = useBoxStore((s) => s.slots.filter((slot) => slot.chocolateId).length);
   const boxSize = useBoxStore((s) => s.boxSize);
@@ -43,6 +46,7 @@ function CatalogCard({
           "hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(60,40,20,0.08)]",
           "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
           chocolate.isBranded && "border-[var(--gold)]/45",
+          suggested && !chocolate.isBranded && "border-[var(--gold)]/30",
           quantity > 0
             ? "border-[var(--chocolate-light)]/55 bg-[var(--cream-dark)]/70"
             : "border-[var(--chocolate-light)]/25 hover:border-[var(--chocolate-light)]/50",
@@ -56,6 +60,12 @@ function CatalogCard({
             logoUrl={logoUrl}
             className="!size-full"
           />
+          {suggested && quantity === 0 && (
+            <span
+              aria-label="Suggested for this logo"
+              className="absolute left-0.5 top-0.5 size-1.5 rounded-full bg-[var(--gold)] shadow-sm"
+            />
+          )}
           {quantity > 0 && (
             <span className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-[var(--chocolate-dark)] text-[10px] font-medium text-[var(--cream)] shadow-sm">
               {quantity}
@@ -97,6 +107,8 @@ export function ChocolateCatalog({ compact = false }: { compact?: boolean }) {
   const catalog = useBoxStore((s) => s.catalog);
   const slots = useBoxStore((s) => s.slots);
   const logoUrl = useBoxStore((s) => s.customization.logo.url);
+  const { colors, suggestions } = useLogoPalette();
+  const suggestedIds = new Set(suggestions.map((chocolate) => chocolate.id));
   const regularChocolates = catalog.filter((c) => !c.isBranded);
   const brandedChocolates = catalog.filter((c) => c.isBranded);
 
@@ -125,6 +137,37 @@ export function ChocolateCatalog({ compact = false }: { compact?: boolean }) {
         </div>
       )}
 
+      {suggestions.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-medium tracking-[0.12em] text-neutral-400 uppercase">
+            Suggested for this logo
+          </span>
+          {colors.map((color) => (
+            <span
+              key={color}
+              className="size-2.5 rounded-full ring-1 ring-black/10"
+              style={{ backgroundColor: color }}
+              aria-hidden
+            />
+          ))}
+          {suggestions.map((chocolate) => (
+            <button
+              key={chocolate.id}
+              type="button"
+              onClick={() => placeChocolateFromCatalog(chocolate.id)}
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--chocolate-light)]/30 bg-white/70 px-2 py-0.5 text-[10px] text-[var(--chocolate-dark)] hover:border-[var(--gold)]/50 hover:bg-[var(--cream)]"
+            >
+              <span
+                className="size-2 rounded-full"
+                style={{ backgroundColor: chocolate.color }}
+                aria-hidden
+              />
+              {chocolate.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {brandedChocolates.length > 0 && (
         <div className="space-y-1.5">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -148,6 +191,7 @@ export function ChocolateCatalog({ compact = false }: { compact?: boolean }) {
             chocolate={chocolate}
             logoUrl={logoUrl}
             quantity={quantities.get(chocolate.id) ?? 0}
+            suggested={suggestedIds.has(chocolate.id)}
           />
         ))}
       </div>
